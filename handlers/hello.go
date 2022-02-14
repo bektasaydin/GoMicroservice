@@ -7,17 +7,23 @@ import (
 	"net/http"
 )
 
+//Hello is a simple handler
 type Hello struct {
 	l *log.Logger
 }
 
+//NewHello creates a new hello handler with the given logger
 func NewHello(l *log.Logger) *Hello {
 	return &Hello{l}
 }
 
+// ServerHTTP implements the go http.Handler interface
+// golang net/http package
 func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	//log.Println("Hello World")
 	h.l.Println("Hello World")
+
+	//read the body
 	//d is data
 	d, err := ioutil.ReadAll(r.Body)
 
@@ -34,6 +40,6 @@ func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	//log.Printf("Data %s\n", d)
-
+	// write the response
 	fmt.Fprintf(rw, "Hello %s", d)
 }

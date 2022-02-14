@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,17 +13,23 @@ import (
 	"workspace/product-api/handlers"
 )
 
-var serverStarting = flag.Bool("scan", false, "Start to server")
+var serverStarting = flag.Bool("server", true, "Started to server")
 
 func main() {
 
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
-	hh := handlers.NewHello(l)
-	gh := handlers.NewGoodbye(l)
+	flag.Parse()
+	//****** create the handlers ******
+	ph := handlers.NewProducts(l)
+	//hh := handlers.NewHello(l)
+	//gh := handlers.NewGoodbye(l)
 
+	//****** create a new serve mux and register the handlers ******
 	sm := http.NewServeMux()
-	sm.Handle("/", hh)
-	sm.Handle("/goodbye", gh)
+	sm.Handle("/", ph)
+	fmt.Println("server:", *serverStarting)
+	//sm.Handle("/", hh)
+	//sm.Handle("/goodbye", gh)
 
 	s := &http.Server{
 		Addr:         ":9090",
@@ -39,11 +46,13 @@ func main() {
 		}
 	}()
 
-	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, os.Interrupt)
-	signal.Notify(sigChan, os.Kill)
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan) // For all catch signals
+	//	signal.Notify(sigChan, os.Interrupt)
+	//	signal.Notify(sigChan, os.Kill)
 
 	sig := <-sigChan
+	fmt.Println("Got signal:", sig)
 	l.Println("Received terminate, graceful shutdown", sig)
 
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
