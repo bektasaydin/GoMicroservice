@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,8 @@ import (
 
 	"workspace/product-api/handlers"
 )
+
+var serverStarting = flag.Bool("scan", false, "Start to server")
 
 func main() {
 
